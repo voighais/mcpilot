@@ -3,956 +3,620 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>McPilot — Менеджер Minecraft-серверов</title>
-<meta name="description" content="McPilot — бесплатный кроссплатформенный менеджер Minecraft-серверов.">
+<title>mcpilot — менеджер minecraft-серверов</title>
+<meta name="description" content="mcpilot — бесплатный менеджер minecraft-серверов на python. консоль, редактор, бэкапы, мультисервер, графики.">
+
+<meta property="og:title" content="mcpilot — менеджер minecraft-серверов">
+<meta property="og:description" content="бесплатный менеджер minecraft-серверов. консоль, редактор, бэкапы, мультисервер, графики cpu и ram.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://voighais.github.io/mcpilot">
+<meta name="theme-color" content="#10b981">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2310b981'/><text x='50' y='68' font-size='56' font-family='sans-serif' font-weight='700' fill='white' text-anchor='middle'>m</text></svg>">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
 <style>
 :root{
   --bg:#ffffff;
-  --bg-soft:#fafafa;
-  --bg-2:#f5f5f7;
-  --surface:rgba(255,255,255,.7);
-  --surface-2:rgba(255,255,255,.5);
-  --line:rgba(0,0,0,.08);
-  --line-2:rgba(0,0,0,.14);
+  --bg-soft:#f7f8fa;
+  --line:#ebebf0;
+  --line-2:#d8d8de;
   --text:#0a0a0f;
   --text-2:#4a4a55;
   --muted:#86868f;
-  --muted-2:#b0b0b8;
+  --muted-2:#b8b8bf;
   --accent:#10b981;
   --accent-2:#059669;
   --accent-soft:#ecfdf5;
   --accent-line:#a7f3d0;
-  --accent-rgb:16,185,129;
-  --blue:#3b82f6;
-  --purple:#8b5cf6;
-  --yellow:#f59e0b;
-  --red:#ef4444;
-  --font-ui:'Space Grotesk','Manrope',ui-sans-serif,system-ui,sans-serif;
-  --font-body:'Manrope',ui-sans-serif,system-ui,sans-serif;
+  --font-ui:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
   --font-mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
-  --radius:12px;
-  --radius-lg:18px;
-  --radius-sm:8px;
+  --radius:10px;
+  --radius-lg:14px;
+  --radius-sm:7px;
   --shadow-sm:0 1px 2px rgba(0,0,0,.04);
-  --shadow:0 4px 16px rgba(0,0,0,.06);
-  --shadow-lg:0 12px 40px rgba(0,0,0,.08);
-  --nav-bg:rgba(255,255,255,.75);
+  --shadow:0 2px 8px rgba(0,0,0,.06);
 }
-
-[data-theme="dark"]{
-  --bg:#0a0c10;
-  --bg-soft:#0d1014;
-  --bg-2:#141820;
-  --surface:rgba(22,27,36,.55);
-  --surface-2:rgba(22,27,36,.35);
-  --line:rgba(255,255,255,.08);
-  --line-2:rgba(255,255,255,.14);
-  --text:#e8edf3;
-  --text-2:#a4b0be;
-  --muted:#6b7683;
-  --muted-2:#4a5260;
-  --accent:#5ee89a;
-  --accent-2:#3fd27f;
-  --accent-soft:rgba(94,232,154,.1);
-  --accent-line:rgba(94,232,154,.25);
-  --accent-rgb:94,232,154;
-  --blue:#79a9ff;
-  --purple:#b46cff;
-  --yellow:#ffd166;
-  --red:#ff7373;
-  --shadow-sm:0 1px 2px rgba(0,0,0,.3);
-  --shadow:0 8px 24px rgba(0,0,0,.4);
-  --shadow-lg:0 20px 60px rgba(0,0,0,.6);
-  --nav-bg:rgba(10,12,16,.7);
-}
-
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{
   background:var(--bg);color:var(--text);
-  font-family:var(--font-body);
+  font-family:var(--font-ui);
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;line-height:1.6;
-  transition:background .4s ease,color .4s ease;
+  font-size:15px;
 }
+a{color:inherit}
+img{max-width:100%;display:block}
+.container{max-width:1040px;margin:0 auto;padding:0 22px}
 
-/* ============ BACKGROUND ============ */
-.bg-decor{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .6s}
-[data-theme="dark"] .bg-decor{opacity:1}
-.bg-decor:before,.bg-decor:after{content:"";position:absolute;border-radius:50%;filter:blur(140px)}
-.bg-decor:before{width:600px;height:600px;left:-200px;top:-150px;background:rgba(var(--accent-rgb),.18);animation:floatA 20s ease-in-out infinite}
-.bg-decor:after{width:700px;height:700px;right:-250px;bottom:-250px;background:rgba(121,169,255,.14);animation:floatB 24s ease-in-out infinite}
-@keyframes floatA{0%,100%{transform:translate(0,0)}50%{transform:translate(80px,60px)}}
-@keyframes floatB{0%,100%{transform:translate(0,0)}50%{transform:translate(-90px,-60px)}}
-
-.container{max-width:1120px;margin:0 auto;padding:0 24px}
-
-/* ============ NAV ============ */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;background:var(--nav-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid transparent;transition:.3s}
+/* nav */
+nav{
+  position:sticky;top:0;z-index:100;
+  padding:12px 0;
+  background:rgba(255,255,255,.92);
+  border-bottom:1px solid transparent;
+  transition:border-color .15s;
+}
 nav.scrolled{border-bottom-color:var(--line)}
-.nav-inner{display:flex;align-items:center;gap:24px}
-.logo{font-family:var(--font-ui);font-weight:700;font-size:16px;color:var(--text);text-decoration:none;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
-.logo-mc{width:32px;height:32px;display:grid;place-items:center;transition:transform .3s;cursor:pointer;image-rendering:pixelated}
-.logo-mc:hover{transform:rotate(-6deg) scale(1.1)}
-.logo-mc svg{width:32px;height:32px;display:block;image-rendering:pixelated;shape-rendering:crispEdges}
-.nav-links{display:flex;gap:4px;margin-left:auto;align-items:center}
-.nav-links a{color:var(--text-2);text-decoration:none;font-size:13.5px;font-weight:500;padding:8px 14px;border-radius:8px;transition:.15s}
-.nav-links a:hover{color:var(--text);background:var(--bg-2)}
-.nav-dl{
-  height:36px;padding:0 16px;
-  border-radius:9px;
-  background:linear-gradient(135deg,var(--accent) 0%,#6ab9ff 50%,var(--accent) 100%);
-  background-size:200% auto;
-  color:#0a0c10 !important;
-  font-family:var(--font-ui);
-  font-weight:700 !important;
-  font-size:13px !important;
-  display:inline-flex !important;align-items:center;gap:6px;
-  text-decoration:none;
-  box-shadow:0 4px 16px rgba(var(--accent-rgb),.3);
-  animation:flow 4s linear infinite;
-  transition:transform .2s,box-shadow .2s !important;
-  border:0 !important;
+.nav-inner{display:flex;align-items:center;gap:18px}
+.logo{
+  font-weight:800;font-size:15.5px;color:var(--text);
+  text-decoration:none;letter-spacing:-.02em;
+  display:flex;align-items:center;gap:8px;
 }
-.nav-dl:hover{
-  transform:translateY(-1px);
-  box-shadow:0 8px 24px rgba(var(--accent-rgb),.5);
+.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.nav-links{display:flex;gap:2px;margin-left:auto}
+.nav-links a{
+  color:var(--text-2);text-decoration:none;font-size:13.5px;font-weight:500;
+  padding:8px 12px;border-radius:8px;transition:background .12s,color .12s;
 }
-.nav-dl svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-@keyframes flow{to{background-position:200% center}}
-
-.settings-btn{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;background:var(--bg-2);border:1px solid var(--line);color:var(--text-2);cursor:pointer;transition:.2s}
-.settings-btn:hover{color:var(--text);border-color:var(--line-2);transform:rotate(45deg)}
-.settings-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-
-/* ============ SETTINGS PANEL ============ */
-.settings-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.4);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:.3s}
-.settings-overlay.open{opacity:1;pointer-events:auto}
-.settings-panel{position:fixed;top:0;right:0;bottom:0;z-index:201;width:min(380px,100vw);background:var(--bg);border-left:1px solid var(--line);padding:24px;overflow-y:auto;transform:translateX(100%);transition:transform .35s cubic-bezier(.2,.9,.3,1)}
-.settings-panel.open{transform:translateX(0)}
-[data-theme="dark"] .settings-panel{background:var(--surface);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
-.settings-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
-.settings-title{font-family:var(--font-ui);font-size:17px;font-weight:700;letter-spacing:-.01em}
-.settings-close{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;background:var(--bg-2);border:1px solid var(--line);color:var(--text-2);cursor:pointer;transition:.15s}
-.settings-close:hover{color:var(--text);background:var(--bg-soft)}
-.settings-group{margin-bottom:24px}
-.settings-group-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:12px}
-.theme-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.theme-btn{padding:14px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:var(--font-ui);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:10px;transition:.2s}
-.theme-btn:hover{border-color:var(--line-2);transform:translateY(-1px)}
-.theme-btn.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-2)}
-.theme-dot{width:16px;height:16px;border-radius:50%;flex-shrink:0;border:2px solid rgba(0,0,0,.1)}
-.theme-dot.light{background:#ffffff}
-.theme-dot.dark{background:#0a0c10;border-color:rgba(255,255,255,.2)}
-.theme-dot.emerald{background:#10b981}
-.theme-dot.ocean{background:#3b82f6}
-.theme-dot.purple{background:#8b5cf6}
-.theme-dot.sunset{background:#f59e0b}
-.font-grid{display:grid;grid-template-columns:1fr;gap:6px}
-.font-btn{padding:12px 14px;border:1px solid var(--line);border-radius:var(--radius);background:var(--bg);color:var(--text);text-align:left;cursor:pointer;transition:.15s;display:flex;justify-content:space-between;align-items:center}
-.font-btn:hover{border-color:var(--line-2)}
-.font-btn.active{border-color:var(--accent);background:var(--accent-soft)}
-.font-btn-name{font-size:13px;font-weight:600}
-.font-btn-preview{font-size:12px;color:var(--muted);font-family:inherit}
-.font-btn.active .font-btn-preview{color:var(--accent-2)}
-.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg-2);border-radius:var(--radius);margin-bottom:6px}
-.toggle-label{font-size:13.5px;font-weight:500}
-.switch{width:40px;height:22px;border-radius:999px;background:var(--line-2);position:relative;cursor:pointer;transition:.2s;border:0;padding:0}
-.switch:after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.25s cubic-bezier(.2,.9,.3,1.4);box-shadow:0 2px 4px rgba(0,0,0,.15)}
-.switch.on{background:var(--accent)}
-.switch.on:after{transform:translateX(18px)}
-
-/* ============ HERO ============ */
-.hero{padding:150px 0 80px;text-align:center;position:relative}
-.hero-tag{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:var(--accent-soft);border:1px solid var(--accent-line);color:var(--accent-2);font-size:12.5px;font-weight:600;margin-bottom:24px;font-family:var(--font-ui);animation:fadeUp .6s ease}
-[data-theme="dark"] .hero-tag{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-.hero-tag .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:blink 2s ease-in-out infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
-
-h1{font-family:var(--font-ui);font-size:clamp(38px,6.5vw,68px);font-weight:700;letter-spacing:-.04em;line-height:1.05;color:var(--text);margin-bottom:20px;animation:fadeUp .7s ease .1s backwards}
-
-/* ============ SHIMMERING ACCENT ============ */
-.accent-flow{
-  background:linear-gradient(90deg,
-    var(--accent) 0%,
-    #6ab9ff 20%,
-    #b46cff 40%,
-    var(--accent) 60%,
-    #6ab9ff 80%,
-    var(--accent) 100%);
-  background-size:300% auto;
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-  animation:flow 5s linear infinite;
-  display:inline-block;
-  filter:drop-shadow(0 0 20px rgba(var(--accent-rgb),.3));
+.nav-links a:hover{color:var(--text);background:var(--bg-soft)}
+.nav-github{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 12px;border-radius:8px;
+  border:1px solid var(--line-2);
+  background:#fff;font-size:13px;font-weight:600;
+  text-decoration:none;transition:.12s;
 }
+.nav-github:hover{border-color:var(--text);transform:translateY(-1px)}
+.nav-github svg{width:14px;height:14px;fill:currentColor}
 
-.hero-sub{font-size:clamp(15px,1.7vw,18px);color:var(--text-2);max-width:620px;margin:0 auto 36px;animation:fadeUp .7s ease .2s backwards}
-.hero-cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;animation:fadeUp .7s ease .3s backwards}
-.btn{display:inline-flex;align-items:center;gap:8px;height:48px;padding:0 22px;border-radius:var(--radius);border:1px solid var(--line-2);background:var(--bg);color:var(--text);font-family:var(--font-ui);font-size:14px;font-weight:600;text-decoration:none;cursor:pointer;transition:.2s;position:relative;overflow:hidden;box-shadow:var(--shadow-sm)}
-.btn:hover{transform:translateY(-1px);border-color:var(--text);box-shadow:var(--shadow)}
+/* hero */
+.hero{padding:80px 0 56px;text-align:center}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:5px 12px;border-radius:999px;
+  background:var(--accent-soft);border:1px solid var(--accent-line);
+  color:var(--accent-2);font-size:12.5px;font-weight:600;
+  margin-bottom:22px;
+}
+.hero-tag .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+h1{
+  font-size:clamp(34px,5.5vw,58px);
+  font-weight:800;letter-spacing:-.038em;line-height:1.06;
+  margin-bottom:18px;
+}
+h1 .accent{color:var(--accent)}
+.hero-sub{
+  font-size:clamp(15px,1.6vw,17px);color:var(--text-2);
+  max-width:600px;margin:0 auto 30px;line-height:1.55;
+}
+.hero-cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  height:46px;padding:0 20px;
+  border-radius:var(--radius);
+  border:1px solid var(--line-2);
+  background:#fff;color:var(--text);
+  font-size:14px;font-weight:600;
+  text-decoration:none;cursor:pointer;
+  transition:transform .1s,border-color .15s,background .15s;
+  white-space:nowrap;
+}
+.btn:hover{transform:translateY(-1px);border-color:var(--text)}
 .btn:active{transform:translateY(0)}
 .btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.btn.primary{background:var(--text);color:#fff;border-color:var(--text)}
+.btn.primary:hover{background:#1a1a22;border-color:#1a1a22}
+.btn.sm{height:38px;padding:0 16px;font-size:13px}
 
-.btn.primary{
-  background:linear-gradient(135deg,
-    var(--accent) 0%,
-    #6ab9ff 30%,
-    #b46cff 50%,
-    #6ab9ff 70%,
-    var(--accent) 100%);
-  background-size:300% auto;
-  color:#0a0c10;
-  border-color:transparent;
-  font-weight:700;
-  box-shadow:0 8px 32px rgba(var(--accent-rgb),.35);
-  animation:flow 5s linear infinite;
+/* section */
+section{padding:64px 0}
+section.alt{background:var(--bg-soft);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.section-title{
+  font-size:clamp(24px,3.2vw,32px);
+  font-weight:800;letter-spacing:-.028em;
+  text-align:center;margin-bottom:8px;
 }
-.btn.primary:hover{
-  box-shadow:0 12px 40px rgba(var(--accent-rgb),.55);
-  transform:translateY(-2px);
+.section-sub{text-align:center;color:var(--text-2);font-size:14.5px;margin-bottom:40px}
+
+/* features */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:12px}
+.feature{
+  padding:22px;border:1px solid var(--line);border-radius:var(--radius-lg);background:#fff;
+  transition:transform .12s,border-color .12s,box-shadow .12s;
 }
-[data-theme="dark"] .btn{background:var(--surface);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.feature:hover{transform:translateY(-2px);border-color:var(--line-2);box-shadow:var(--shadow)}
+.feature-title{font-size:15px;font-weight:700;margin-bottom:6px;letter-spacing:-.01em}
+.feature-desc{color:var(--text-2);font-size:13.5px;line-height:1.62}
 
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-
-/* ============ STATS ============ */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;margin-top:70px;animation:fadeUp .7s ease .4s backwards}
-[data-theme="dark"] .stats{background:var(--surface);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:var(--shadow-lg)}
-.stat{background:var(--bg);padding:28px 20px;text-align:center;transition:.2s}
-[data-theme="dark"] .stat{background:transparent}
-.stat:hover{background:var(--bg-soft)}
-[data-theme="dark"] .stat:hover{background:var(--surface-2)}
-.stat-value{font-family:var(--font-ui);font-size:28px;font-weight:700;color:var(--text);letter-spacing:-.02em;margin-bottom:4px}
-.stat-label{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:600}
-
-.section{padding:90px 0}
-.section-head{text-align:center;margin-bottom:56px;max-width:680px;margin-left:auto;margin-right:auto}
-.section-eyebrow{font-family:var(--font-ui);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--accent);margin-bottom:12px}
-.section-title{font-family:var(--font-ui);font-size:clamp(26px,3.5vw,38px);font-weight:700;letter-spacing:-.03em;color:var(--text);margin-bottom:12px;line-height:1.15}
-.section-sub{color:var(--text-2);font-size:16px}
-
-.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
-.feature{padding:28px;border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--bg);transition:.25s}
-[data-theme="dark"] .feature{background:var(--surface);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:var(--shadow)}
-.feature:hover{border-color:var(--line-2);box-shadow:var(--shadow);transform:translateY(-2px)}
-[data-theme="dark"] .feature:hover{border-color:rgba(var(--accent-rgb),.3);box-shadow:0 16px 48px rgba(0,0,0,.5),0 0 0 1px rgba(var(--accent-rgb),.1)}
-.feature-icon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--bg-2);color:var(--text);margin-bottom:16px;border:1px solid var(--line)}
-[data-theme="dark"] .feature-icon{background:var(--surface-2)}
-.feature-icon svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.feature-icon.green{background:var(--accent-soft);color:var(--accent-2);border-color:var(--accent-line)}
-.feature-icon.blue{background:rgba(59,130,246,.1);color:var(--blue);border-color:rgba(59,130,246,.2)}
-.feature-icon.purple{background:rgba(139,92,246,.1);color:var(--purple);border-color:rgba(139,92,246,.2)}
-.feature-icon.yellow{background:rgba(245,158,11,.1);color:var(--yellow);border-color:rgba(245,158,11,.2)}
-.feature-icon.red{background:rgba(239,68,68,.1);color:var(--red);border-color:rgba(239,68,68,.2)}
-.feature-title{font-family:var(--font-ui);font-size:16px;font-weight:700;margin-bottom:8px;letter-spacing:-.01em}
-.feature-desc{color:var(--text-2);font-size:13.5px;line-height:1.65}
-.feature-desc code{font-family:var(--font-mono);font-size:12px;background:var(--bg-2);padding:1px 6px;border-radius:5px;color:var(--text);border:1px solid var(--line)}
-[data-theme="dark"] .feature-desc code{background:rgba(0,0,0,.3)}
-
-.tutorial{background:var(--bg-soft);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-[data-theme="dark"] .tutorial{background:transparent}
-.tutorial-steps{display:flex;flex-direction:column;gap:12px;max-width:780px;margin:0 auto}
-.tut-step{display:flex;gap:20px;padding:24px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-lg);transition:.2s}
-[data-theme="dark"] .tut-step{background:var(--surface);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-.tut-step:hover{border-color:var(--line-2);box-shadow:var(--shadow-sm)}
-[data-theme="dark"] .tut-step:hover{border-color:rgba(var(--accent-rgb),.25);box-shadow:0 8px 32px rgba(0,0,0,.4)}
-.tut-num{width:36px;height:36px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;background:var(--text);color:var(--bg);font-family:var(--font-ui);font-weight:700;font-size:14px}
-[data-theme="dark"] .tut-num{background:linear-gradient(135deg,var(--accent),#6ab9ff);color:#0a0c10}
-.tut-body{flex:1;min-width:0}
-.tut-title{font-family:var(--font-ui);font-weight:700;font-size:15.5px;margin-bottom:6px;letter-spacing:-.01em}
-.tut-desc{color:var(--text-2);font-size:13.5px;line-height:1.65;margin-bottom:10px}
-.tut-desc:last-child{margin-bottom:0}
-.tut-desc code{font-family:var(--font-mono);font-size:12px;background:var(--bg-2);padding:1px 6px;border-radius:5px;color:var(--text);border:1px solid var(--line)}
-[data-theme="dark"] .tut-desc code{background:rgba(0,0,0,.3)}
-.tut-code{font-family:var(--font-mono);font-size:13px;padding:12px 16px;background:#0f0f14;color:#e5e5ea;border-radius:var(--radius-sm);overflow-x:auto;margin-top:8px;position:relative;line-height:1.6}
-.tut-code:before{content:"$";color:var(--accent);margin-right:10px;font-weight:700}
-.tut-tip{display:flex;gap:10px;padding:12px 14px;background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:var(--radius-sm);margin-top:12px;font-size:13px;color:var(--accent-2);line-height:1.55}
-.tut-tip svg{width:16px;height:16px;flex-shrink:0;margin-top:2px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.tut-download{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:12px 20px;margin-top:10px;
-  border-radius:var(--radius);
-  background:linear-gradient(135deg,var(--accent) 0%,#6ab9ff 50%,var(--accent) 100%);
-  background-size:200% auto;
-  color:#0a0c10;
-  font-family:var(--font-ui);font-weight:700;font-size:14px;
-  text-decoration:none;
-  box-shadow:0 8px 24px rgba(var(--accent-rgb),.3);
-  animation:flow 4s linear infinite;
-  transition:transform .2s,box-shadow .2s;
+/* install */
+.steps{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.step{padding:18px 20px;background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg)}
+.step-title{font-weight:700;font-size:14.5px;margin-bottom:6px}
+.step-desc{color:var(--text-2);font-size:13.5px;line-height:1.6}
+.step-desc code,.faq-a code{font-family:var(--font-mono);font-size:12px;background:var(--bg-soft);padding:1px 6px;border-radius:5px;color:var(--text);border:1px solid var(--line)}
+.step-code{
+  font-family:var(--font-mono);font-size:13px;
+  padding:11px 14px;background:#0f0f14;color:#e5e5ea;
+  border-radius:var(--radius-sm);overflow-x:auto;margin-top:8px;line-height:1.55;
+  display:flex;align-items:center;gap:10px;
 }
-.tut-download:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(var(--accent-rgb),.5)}
-.tut-download svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.step-code::before{content:"$";color:var(--accent);font-weight:700;flex-shrink:0}
 
-.faq{max-width:780px;margin:0 auto}
-.faq-item{border-bottom:1px solid var(--line);padding:20px 0}
-.faq-item:last-child{border-bottom:0}
-.faq-q{display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;font-family:var(--font-ui);font-weight:600;font-size:15.5px;letter-spacing:-.01em;transition:.15s;user-select:none}
+/* releases */
+.releases-list{display:flex;flex-direction:column;gap:10px;max-width:780px;margin:0 auto}
+.release{
+  padding:20px 22px;background:#fff;border:1px solid var(--line);
+  border-radius:var(--radius-lg);
+  transition:border-color .12s,box-shadow .12s;
+  display:flex;gap:18px;align-items:center;flex-wrap:wrap;
+}
+.release:hover{border-color:var(--line-2);box-shadow:var(--shadow-sm)}
+.release.latest{border-color:var(--accent-line);background:linear-gradient(0deg,rgba(16,185,129,.025),rgba(16,185,129,.025)),#fff}
+.release-info{flex:1;min-width:0}
+.release-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.release-version{font-family:var(--font-mono);font-weight:700;font-size:15.5px;letter-spacing:-.01em}
+.release-badge{
+  font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;
+  padding:3px 8px;border-radius:999px;
+  background:var(--accent-soft);color:var(--accent-2);border:1px solid var(--accent-line);
+}
+.release-badge.old{background:#f3f3f6;color:var(--muted);border-color:var(--line)}
+.release-date{color:var(--muted);font-size:12.5px}
+.release-changelog{
+  color:var(--text-2);font-size:13.5px;line-height:1.6;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.release-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.release-link{
+  font-size:12.5px;color:var(--muted);text-decoration:none;
+  padding:8px 12px;border-radius:8px;transition:.12s;
+}
+.release-link:hover{color:var(--text);background:var(--bg-soft)}
+
+/* skeleton */
+.skel{padding:20px 22px;border:1px solid var(--line);border-radius:var(--radius-lg);background:#fff}
+.skel-line{height:12px;background:linear-gradient(90deg,#f1f1f4 0%,#f7f7f9 50%,#f1f1f4 100%);border-radius:6px;margin-bottom:10px}
+.skel-line.w40{width:40%}
+.skel-line.w70{width:70%}
+.skel-line.w90{width:90%}
+.skel-line.w25{width:25%}
+.skel-line:last-child{margin-bottom:0}
+
+/* release error / empty */
+.release-empty{
+  padding:32px 22px;text-align:center;
+  border:1px dashed var(--line-2);border-radius:var(--radius-lg);
+  color:var(--muted);font-size:13.5px;
+}
+.release-empty a{color:var(--accent-2);font-weight:600}
+
+/* faq */
+.faq-list{max-width:720px;margin:0 auto}
+.faq-item{border-bottom:1px solid var(--line);padding:16px 0}
+.faq-item:first-child{padding-top:0}
+.faq-item:last-child{border-bottom:0;padding-bottom:0}
+.faq-q{
+  display:flex;justify-content:space-between;align-items:center;gap:16px;
+  cursor:pointer;font-weight:600;font-size:14.5px;user-select:none;
+  transition:color .12s;
+}
 .faq-q:hover{color:var(--accent-2)}
-.faq-q svg{width:18px;height:18px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:.25s}
+.faq-q svg{width:16px;height:16px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
 .faq-item.open .faq-q svg{transform:rotate(45deg)}
-.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;color:var(--text-2);font-size:14px;line-height:1.7}
-.faq-item.open .faq-a{max-height:400px;padding-top:12px}
-.faq-a code{font-family:var(--font-mono);font-size:12.5px;background:var(--bg-2);padding:1px 6px;border-radius:5px;color:var(--text);border:1px solid var(--line)}
-[data-theme="dark"] .faq-a code{background:rgba(0,0,0,.3)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .22s ease,padding .22s ease;color:var(--text-2);font-size:13.5px;line-height:1.65}
+.faq-item.open .faq-a{max-height:400px;padding-top:10px}
 
-.social-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;max-width:720px;margin:0 auto}
-.social-card{display:flex;align-items:center;gap:16px;padding:22px;border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--bg);text-decoration:none;color:var(--text);transition:.2s}
-[data-theme="dark"] .social-card{background:var(--surface);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-.social-card:hover{transform:translateY(-2px);border-color:var(--line-2);box-shadow:var(--shadow)}
-[data-theme="dark"] .social-card:hover{border-color:rgba(var(--accent-rgb),.3);box-shadow:0 12px 40px rgba(0,0,0,.5)}
-.social-icon{width:48px;height:48px;border-radius:12px;flex-shrink:0;display:grid;place-items:center;color:#fff}
-.social-icon.tg{background:linear-gradient(135deg,#29b6f6,#1e88e5)}
-.social-icon.yt{background:linear-gradient(135deg,#ef4444,#dc2626)}
-.social-icon svg{width:24px;height:24px;fill:currentColor}
+/* social */
+.social-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;max-width:680px;margin:0 auto}
+.social-card{
+  display:flex;align-items:center;gap:14px;
+  padding:16px 18px;border:1px solid var(--line);border-radius:var(--radius-lg);
+  background:#fff;text-decoration:none;color:var(--text);
+  transition:transform .12s,border-color .12s,box-shadow .12s;
+}
+.social-card:hover{transform:translateY(-2px);border-color:var(--line-2);box-shadow:var(--shadow-sm)}
+.social-icon{width:42px;height:42px;border-radius:10px;flex-shrink:0;display:grid;place-items:center;color:#fff}
+.social-icon.tg{background:#29b6f6}
+.social-icon.yt{background:#ef4444}
+.social-icon svg{width:22px;height:22px;fill:currentColor}
 .social-body{flex:1;min-width:0}
-.social-name{font-family:var(--font-ui);font-weight:700;font-size:14.5px;margin-bottom:2px}
-.social-handle{font-size:13px;color:var(--muted);font-family:var(--font-mono)}
-.social-arrow{color:var(--muted-2);transition:.2s}
+.social-name{font-weight:700;font-size:13.5px;margin-bottom:2px}
+.social-handle{font-size:12.5px;color:var(--muted);font-family:var(--font-mono)}
+.social-arrow{color:var(--muted-2);transition:transform .12s,color .12s}
 .social-card:hover .social-arrow{color:var(--text);transform:translateX(3px)}
-.social-arrow svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.social-arrow svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-footer{padding:40px 0;border-top:1px solid var(--line);text-align:center}
-.footer-text{color:var(--muted);font-size:13px;line-height:1.8}
-.footer-text a{color:var(--text-2);text-decoration:none;transition:.15s;font-weight:500}
-.footer-text a:hover{color:var(--accent-2)}
+/* footer */
+footer{padding:32px 0;border-top:1px solid var(--line);text-align:center}
+footer p{color:var(--muted);font-size:12.5px;line-height:1.8}
+footer a{color:var(--text-2);text-decoration:none;transition:color .12s}
+footer a:hover{color:var(--accent-2)}
 
-.reveal{opacity:0;transform:translateY(20px);transition:.6s cubic-bezier(.2,.9,.3,1)}
-.reveal.in{opacity:1;transform:translateY(0)}
-
-/* ============ EASTER EGG ============ */
-.creeper-walk{position:fixed;bottom:40px;left:-120px;width:72px;height:72px;z-index:9999;pointer-events:none;opacity:0;transition:opacity .3s;image-rendering:pixelated}
-.creeper-walk.active{opacity:1;animation:creeperMove 8s linear forwards}
-@keyframes creeperMove{
-  0%{left:-120px;transform:scaleX(1)}
-  45%{left:calc(100vw - 72px - 40px);transform:scaleX(1)}
-  50%{left:calc(100vw - 72px - 40px);transform:scaleX(-1)}
-  55%{transform:scaleX(-1)}
-  100%{left:-120px;transform:scaleX(-1)}
-}
-.creeper-walk svg{width:100%;height:100%;display:block;image-rendering:pixelated;shape-rendering:crispEdges;filter:drop-shadow(0 6px 16px rgba(0,0,0,.4));animation:creeperBob .35s ease-in-out infinite alternate}
-@keyframes creeperBob{from{transform:translateY(0) rotate(-1deg)}to{transform:translateY(-5px) rotate(1deg)}}
-
-.easter-toast{position:fixed;top:80px;left:50%;transform:translate(-50%,-20px);padding:14px 22px;border-radius:14px;background:var(--text);color:var(--bg);font-family:var(--font-ui);font-weight:600;font-size:14px;box-shadow:0 20px 60px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:.4s cubic-bezier(.2,.9,.3,1.4);z-index:99999;display:flex;align-items:center;gap:10px}
-.easter-toast.show{opacity:1;transform:translate(-50%,0)}
-.easter-toast svg{width:22px;height:22px;image-rendering:pixelated;shape-rendering:crispEdges}
-
-::-webkit-scrollbar{width:10px;height:10px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:6px;border:2px solid var(--bg)}
-::-webkit-scrollbar-thumb:hover{background:var(--muted-2)}
-
-@media (max-width:780px){
-  .nav-links a:not(.nav-dl){display:none}
-  .nav-dl{padding:0 12px !important;font-size:12px !important}
-  .hero{padding:120px 0 60px}
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .section{padding:60px 0}
-  .tut-step{padding:20px;gap:16px}
-  .feature{padding:22px}
-  .settings-panel{width:100vw}
-}
-@media (max-width:480px){
+@media (max-width:640px){
   .container{padding:0 18px}
-  h1{font-size:34px}
+  .nav-links a{padding:7px 10px;font-size:13px}
+  .nav-links a:not(.keep){display:none}
+  .nav-github{padding:6px 10px}
+  .hero{padding:56px 0 40px}
+  .release{flex-direction:column;align-items:stretch}
+  .release-actions .btn{width:100%;justify-content:center}
+  .release-link{display:none}
+  section{padding:48px 0}
 }
 </style>
 </head>
 <body>
 
-<div class="bg-decor"></div>
-
-<!-- ============ CREEPER SPRITE (from Pinterest image) ============ -->
-<svg width="0" height="0" style="position:absolute">
-  <symbol id="creeper" viewBox="0 0 16 16" shape-rendering="crispEdges">
-    <!-- Base: green background -->
-    <rect width="16" height="16" fill="#5d9b3d"/>
-    <!-- Texture: darker/lighter green pixels -->
-    <rect x="0" y="0" width="2" height="2" fill="#4a7c30"/>
-    <rect x="2" y="1" width="1" height="1" fill="#6cb34a"/>
-    <rect x="6" y="0" width="2" height="1" fill="#4a7c30"/>
-    <rect x="10" y="0" width="2" height="2" fill="#6cb34a"/>
-    <rect x="13" y="1" width="2" height="1" fill="#4a7c30"/>
-    <rect x="15" y="3" width="1" height="2" fill="#6cb34a"/>
-    <rect x="0" y="5" width="2" height="1" fill="#6cb34a"/>
-    <rect x="14" y="5" width="2" height="2" fill="#4a7c30"/>
-    <rect x="0" y="10" width="2" height="2" fill="#4a7c30"/>
-    <rect x="14" y="11" width="2" height="2" fill="#6cb34a"/>
-    <rect x="5" y="14" width="2" height="2" fill="#4a7c30"/>
-    <rect x="12" y="14" width="2" height="2" fill="#6cb34a"/>
-    <rect x="3" y="8" width="1" height="1" fill="#4a7c30"/>
-    <rect x="13" y="9" width="1" height="1" fill="#6cb34a"/>
-    <!-- Eyes (4x4 black) -->
-    <rect x="2" y="4" width="4" height="4" fill="#0a0a0a"/>
-    <rect x="10" y="4" width="4" height="4" fill="#0a0a0a"/>
-    <!-- Mouth: top bar -->
-    <rect x="4" y="8" width="8" height="2" fill="#0a0a0a"/>
-    <!-- Mouth: side legs -->
-    <rect x="2" y="8" width="2" height="4" fill="#0a0a0a"/>
-    <rect x="12" y="8" width="2" height="4" fill="#0a0a0a"/>
-    <!-- Mouth: middle feet -->
-    <rect x="6" y="10" width="1" height="3" fill="#0a0a0a"/>
-    <rect x="9" y="10" width="1" height="3" fill="#0a0a0a"/>
-    <rect x="7" y="12" width="2" height="1" fill="#0a0a0a"/>
-  </symbol>
-</svg>
-
 <nav id="nav">
   <div class="container nav-inner">
-    <a href="#" class="logo">
-      <span class="logo-mc" id="logoCreeper">
-        <svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges">
-          <use href="#creeper"/>
-        </svg>
-      </span>
-      McPilot
-    </a>
+    <a href="#" class="logo"><span class="logo-dot"></span>mcpilot</a>
     <div class="nav-links">
-      <a href="#features">Возможности</a>
-      <a href="#tutorial">Туториал</a>
-      <a href="#faq">FAQ</a>
-      <a href="#social">Связь</a>
-      <a href="https://github.com/voighais/mcpilot/releases/latest/download/McPilot.zip" class="nav-dl">
-        <svg viewBox="0 0 24 24"><path d="M12 3v14M6 11l6 6 6-6M5 21h14"/></svg>
-        Скачать
-      </a>
-      <button class="settings-btn" id="settingsBtn" aria-label="Настройки">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      </button>
+      <a href="#releases" class="keep">версии</a>
+      <a href="#features">возможности</a>
+      <a href="#install">установка</a>
+      <a href="#faq">faq</a>
     </div>
+    <a href="https://github.com/voighais/mcpilot" target="_blank" rel="noopener" class="nav-github">
+      <svg viewBox="0 0 24 24"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.8 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2.9-.3 1.9-.4 2.9-.4s2 .1 2.9.4c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.7.8 1.2 1.8 1.2 3.1 0 4.5-2.7 5.5-5.3 5.8.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
+      github
+    </a>
   </div>
 </nav>
 
-<!-- ============ SETTINGS PANEL ============ -->
-<div class="settings-overlay" id="settingsOverlay"></div>
-<aside class="settings-panel" id="settingsPanel">
-  <div class="settings-head">
-    <div class="settings-title">Настройки</div>
-    <button class="settings-close" id="settingsClose">✕</button>
-  </div>
-  <div class="settings-group">
-    <div class="settings-group-title">Тема</div>
-    <div class="theme-grid">
-      <button class="theme-btn active" data-theme="light"><span class="theme-dot light"></span>Светлая</button>
-      <button class="theme-btn" data-theme="dark"><span class="theme-dot dark"></span>Тёмная</button>
-    </div>
-  </div>
-  <div class="settings-group">
-    <div class="settings-group-title">Акцент</div>
-    <div class="theme-grid">
-      <button class="theme-btn active" data-accent="emerald"><span class="theme-dot emerald"></span>Emerald</button>
-      <button class="theme-btn" data-accent="ocean"><span class="theme-dot ocean"></span>Ocean</button>
-      <button class="theme-btn" data-accent="purple"><span class="theme-dot purple"></span>Purple</button>
-      <button class="theme-btn" data-accent="sunset"><span class="theme-dot sunset"></span>Sunset</button>
-    </div>
-  </div>
-  <div class="settings-group">
-    <div class="settings-group-title">Шрифт</div>
-    <div class="font-grid">
-      <button class="font-btn active" data-font="grotesk"><span class="font-btn-name">Space Grotesk</span><span class="font-btn-preview" style="font-family:'Space Grotesk'">Aa Bb 123</span></button>
-      <button class="font-btn" data-font="manrope"><span class="font-btn-name">Manrope</span><span class="font-btn-preview" style="font-family:'Manrope'">Aa Bb 123</span></button>
-      <button class="font-btn" data-font="mono"><span class="font-btn-name">JetBrains Mono</span><span class="font-btn-preview" style="font-family:'JetBrains Mono'">Aa Bb 123</span></button>
-      <button class="font-btn" data-font="system"><span class="font-btn-name">System</span><span class="font-btn-preview" style="font-family:system-ui">Aa Bb 123</span></button>
-    </div>
-  </div>
-  <div class="settings-group">
-    <div class="settings-group-title">Эффекты</div>
-    <div class="toggle-row"><span class="toggle-label">Плавающие свечения</span><button class="switch on" id="toggleGlow"></button></div>
-    <div class="toggle-row"><span class="toggle-label">Glass-эффект</span><button class="switch on" id="toggleGlass"></button></div>
-    <div class="toggle-row"><span class="toggle-label">Анимации</span><button class="switch on" id="toggleAnim"></button></div>
-  </div>
-  <div class="settings-group">
-    <div class="settings-group-title">Сброс</div>
-    <button class="btn" style="width:100%;justify-content:center" id="resetSettings">
-      <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
-      Сбросить настройки
-    </button>
-  </div>
-</aside>
-
-<!-- ============ HERO ============ -->
 <header class="hero">
   <div class="container">
-    <div class="hero-tag"><span class="dot"></span>Бесплатно · Open Source · Кроссплатформенно</div>
-    <h1>
-      Minecraft-сервер<br>
-      <span class="accent-flow">без чёрного cmd</span>
-    </h1>
-    <p class="hero-sub">
-      McPilot — лёгкий менеджер Minecraft-серверов. Консоль с подсветкой логов,
-      встроенный редактор файлов, автобэкапы, 8 тем и 11 шрифтов. Работает
-      на Windows, Linux и macOS.
-    </p>
+    <div class="hero-tag"><span class="dot"></span>бесплатно, опенсорс, кроссплатформенно</div>
+    <h1>mcpilot,<br><span class="accent">менеджер minecraft-серверов</span></h1>
+    <p class="hero-sub">консоль с подсветкой логов, редактор файлов, бэкапы, мультисервер, графики cpu и ram. работает на windows, linux и macos.</p>
     <div class="hero-cta">
-      <a href="https://github.com/voighais/mcpilot/releases/latest/download/McPilot.zip" class="btn primary">
+      <a href="#releases" class="btn primary">
         <svg viewBox="0 0 24 24"><path d="M12 3v14M6 11l6 6 6-6M5 21h14"/></svg>
-        Скачать McPilot.zip
+        скачать
       </a>
-      <a href="#tutorial" class="btn">
+      <a href="#install" class="btn">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-        Как использовать
+        как установить
       </a>
-    </div>
-    <div class="stats">
-      <div class="stat"><div class="stat-value">8</div><div class="stat-label">Тем</div></div>
-      <div class="stat"><div class="stat-value">11</div><div class="stat-label">Шрифтов</div></div>
-      <div class="stat"><div class="stat-value">3</div><div class="stat-label">ОС</div></div>
-      <div class="stat"><div class="stat-value">100%</div><div class="stat-label">Бесплатно</div></div>
     </div>
   </div>
 </header>
 
-<!-- ============ FEATURES ============ -->
-<section class="section" id="features">
+<section class="alt" id="releases">
   <div class="container">
-    <div class="section-head reveal">
-      <div class="section-eyebrow">Возможности</div>
-      <h2 class="section-title">Всё для управления сервером</h2>
-      <p class="section-sub">Без браузера, без лишних зависимостей, без чёрного окна cmd.</p>
-    </div>
-    <div class="features">
-      <div class="feature reveal"><div class="feature-icon green"><svg viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z"/></svg></div><div class="feature-title">Управление сервером</div><div class="feature-desc">Запуск, остановка и перезапуск в один клик. Корректная остановка через <code>stop</code>, при зависании — принудительное убийство дерева процессов.</div></div>
-      <div class="feature reveal"><div class="feature-icon blue"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 10l3 3-3 3M12 17h6"/></svg></div><div class="feature-title">Консоль с подсветкой</div><div class="feature-desc">Логи Minecraft в реальном времени. Ошибки красным, варны жёлтым, успешный старт зелёным. Команды можно писать прямо в окно.</div></div>
-      <div class="feature reveal"><div class="feature-icon purple"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div><div class="feature-title">Файловый менеджер</div><div class="feature-desc">Просмотр, редактирование, удаление, переименование. Встроенный редактор для 20+ расширений. Загрузка с ПК и скачивание папок архивом.</div></div>
-      <div class="feature reveal"><div class="feature-icon yellow"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg></div><div class="feature-title">Автобэкапы</div><div class="feature-desc">Сохранение в Документы с максимальным сжатием. Мусор исключается. Старые бэкапы удаляются сами — хранится 10 последних.</div></div>
-      <div class="feature reveal"><div class="feature-icon green"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><div class="feature-title">Темы и кастомизация</div><div class="feature-desc">8 цветовых тем, 11 шрифтов, регулировка прозрачности панелей, свой фон из картинки (PNG/JPG/GIF/WEBP).</div></div>
-      <div class="feature reveal"><div class="feature-icon red"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg></div><div class="feature-title">Кроссплатформенность</div><div class="feature-desc">Windows (<code>.bat</code>, <code>.cmd</code>, <code>.jar</code>), Linux и macOS (<code>.sh</code>, <code>.jar</code>). Автовыбор команды запуска по расширению.</div></div>
-      <div class="feature reveal"><div class="feature-icon blue"><svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></div><div class="feature-title">Звуки и уведомления</div><div class="feature-desc">Приятный звук при запуске и остановке сервера. Тосты-уведомления о каждом действии — сохранение файла, бэкап, ошибка.</div></div>
-      <div class="feature reveal"><div class="feature-icon yellow"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><div class="feature-title">Мониторинг ресурсов</div><div class="feature-desc">CPU, RAM и PID сервера в шапке окна. Данные берутся напрямую с процесса <code>java.exe</code>, а не с cmd-обёртки.</div></div>
-      <div class="feature reveal"><div class="feature-icon purple"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div><div class="feature-title">Мультиязычность</div><div class="feature-desc">Русский и английский из коробки. Переключение прямо в настройках — интерфейс обновляется мгновенно, без перезапуска.</div></div>
-    </div>
+    <h2 class="section-title">версии</h2>
+    <p class="section-sub">свежие релизы подтягиваются с github автоматически</p>
+    <div class="releases-list" id="releaseList"></div>
   </div>
 </section>
 
-<!-- ============ TUTORIAL ============ -->
-<section class="section tutorial" id="tutorial">
+<section id="features">
   <div class="container">
-    <div class="section-head reveal">
-      <div class="section-eyebrow">Туториал</div>
-      <h2 class="section-title">Как пользоваться McPilot</h2>
-      <p class="section-sub">Пошагово от установки до первого запуска сервера.</p>
-    </div>
-    <div class="tutorial-steps">
-      <div class="tut-step reveal">
-        <div class="tut-num">1</div>
-        <div class="tut-body">
-          <div class="tut-title">Скачай McPilot.zip</div>
-          <div class="tut-desc">Нажми на кнопку — архив скачается с GitHub.</div>
-          <a href="https://github.com/voighais/mcpilot/releases/latest/download/McPilot.zip" class="tut-download">
-            <svg viewBox="0 0 24 24"><path d="M12 3v14M6 11l6 6 6-6M5 21h14"/></svg>
-            Скачать McPilot.zip
-          </a>
-        </div>
+    <h2 class="section-title">что умеет</h2>
+    <p class="section-sub">без браузера, без зависимостей, без чёрного cmd</p>
+    <div class="features-grid">
+      <div class="feature">
+        <div class="feature-title">мультисервер</div>
+        <div class="feature-desc">несколько серверов в одном окне, вкладки как в браузере, у каждого свои логи, бэкапы и метрики</div>
       </div>
-      <div class="tut-step reveal">
-        <div class="tut-num">2</div>
-        <div class="tut-body">
-          <div class="tut-title">Установи Python 3.9+</div>
-          <div class="tut-desc">Скачай с <a href="https://www.python.org/downloads/" target="_blank" style="color:var(--accent-2);text-decoration:none;font-weight:600">python.org</a>. На Windows при установке поставь галочку <code>Add Python to PATH</code> — это важно, иначе команды не будут работать в терминале.</div>
-        </div>
+      <div class="feature">
+        <div class="feature-title">консоль с подсветкой</div>
+        <div class="feature-desc">ошибки красным, варны жёлтым, успешный старт зелёным, команды пишутся прямо в окно</div>
       </div>
-      <div class="tut-step reveal">
-        <div class="tut-num">3</div>
-        <div class="tut-body">
-          <div class="tut-title">Установи зависимости</div>
-          <div class="tut-desc">Открой терминал (cmd на Windows, Terminal на macOS/Linux) и выполни:</div>
-          <div class="tut-code">pip install pywebview psutil</div>
-          <div class="tut-tip">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-            <span>На Linux дополнительно нужны системные пакеты: <code>sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.0</code></span>
-          </div>
-        </div>
+      <div class="feature">
+        <div class="feature-title">редактор файлов</div>
+        <div class="feature-desc">номера строк, поиск, статус-бар, ctrl+s, поддержка 20+ расширений</div>
       </div>
-      <div class="tut-step reveal">
-        <div class="tut-num">4</div>
-        <div class="tut-body">
-          <div class="tut-title">Распакуй архив в папку сервера</div>
-          <div class="tut-desc">Содержимое <code>McPilot.zip</code> (<code>app.py</code>, <code>README.md</code>, <code>.gitignore</code>) — прямо в папку твоего Minecraft-сервера, рядом с <code>start.bat</code>, <code>server.jar</code> или <code>start.sh</code>.</div>
-        </div>
+      <div class="feature">
+        <div class="feature-title">графики cpu и ram</div>
+        <div class="feature-desc">живой мониторинг за последние 3 минуты, видно утечки памяти и пики нагрузки</div>
       </div>
-      <div class="tut-step reveal">
-        <div class="tut-num">5</div>
-        <div class="tut-body">
-          <div class="tut-title">Первый запуск</div>
-          <div class="tut-desc">В той же папке открой терминал и запусти:</div>
-          <div class="tut-code">python app.py</div>
-          <div class="tut-desc" style="margin-top:12px">Откроется окно терминала с ASCII-баннером, где McPilot спросит имя файла запуска. Впиши <code>start.bat</code> (или <code>server.jar</code>, или <code>start.sh</code>) и нажми Enter.</div>
-        </div>
+      <div class="feature">
+        <div class="feature-title">бэкапы</div>
+        <div class="feature-desc">в документы, с максимальным сжатием, старые удаляются автоматически, хранится 10 последних</div>
       </div>
-      <div class="tut-step reveal">
-        <div class="tut-num">6</div>
-        <div class="tut-body">
-          <div class="tut-title">Запусти сервер</div>
-          <div class="tut-desc">Откроется окно McPilot. Жми зелёную кнопку <strong>«Запустить»</strong> в шапке — сервер стартует, а логи начнут сыпаться в консоль. Дождись строки <code>Done (X.XXs)!</code> — сервер готов принимать игроков.</div>
-        </div>
+      <div class="feature">
+        <div class="feature-title">счётчик игроков</div>
+        <div class="feature-desc">показывает сколько онлайн, разбирая логи, наводишь, видишь список ников</div>
       </div>
-      <div class="tut-step reveal">
-        <div class="tut-num">7</div>
-        <div class="tut-body">
-          <div class="tut-title">Управляй через консоль</div>
-          <div class="tut-desc">Внизу окна — поле ввода. Пиши любые команды Minecraft (<code>say Привет</code>, <code>op Steve</code>, <code>list</code>) и жми Enter. Это то же самое, что писать в консоль сервера напрямую.</div>
-        </div>
+      <div class="feature">
+        <div class="feature-title">кастомные темы</div>
+        <div class="feature-desc">импорт json-файлов от других людей, свои тоже можно делать и отдавать</div>
       </div>
-      <div class="tut-step reveal">
-        <div class="tut-num">8</div>
-        <div class="tut-body">
-          <div class="tut-title">Редактируй файлы</div>
-          <div class="tut-desc">Справа — панель файлов. Кликай по любому текстовому файлу (<code>server.properties</code>, <code>paper.yml</code>, <code>whitelist.json</code> и т.д.) — он откроется в редакторе. Сохранить — <code>Ctrl+S</code>.</div>
-        </div>
-      </div>
-      <div class="tut-step reveal">
-        <div class="tut-num">9</div>
-        <div class="tut-body">
-          <div class="tut-title">Делай бэкапы</div>
-          <div class="tut-desc">Кнопка <strong>«Бэкап»</strong> в шапке. Сохранит всё в Документы, сожмёт по максимуму, выкинет логи и мусор. Старые (сверх 10) удаляются автоматически.</div>
-        </div>
-      </div>
-      <div class="tut-step reveal">
-        <div class="tut-num">10</div>
-        <div class="tut-body">
-          <div class="tut-title">Настрой под себя</div>
-          <div class="tut-desc">Шестерёнка в правом верхнем углу. Там можно поменять тему, шрифт, прозрачность, язык, загрузить свой фон, поменять файл запуска и настроить звуки.</div>
-        </div>
+      <div class="feature">
+        <div class="feature-title">кросс-платформа</div>
+        <div class="feature-desc">windows, linux, macos, поддержка .bat, .sh и .jar файлов запуска</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============ FAQ ============ -->
-<section class="section" id="faq">
+<section class="alt" id="install">
   <div class="container">
-    <div class="section-head reveal">
-      <div class="section-eyebrow">FAQ</div>
-      <h2 class="section-title">Частые вопросы</h2>
-    </div>
-    <div class="faq">
-      <div class="faq-item reveal"><div class="faq-q"><span>Это точно безопасно?</span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Да. McPilot — это открытый исходный код (лицензия MIT). Программа не делает никаких сетевых запросов, не собирает телеметрию и не имеет встроенных платежей. Ты можешь сам открыть <code>app.py</code> и проверить каждую строчку. Единственное, что она делает — управляет твоим сервером локально.</div></div>
-      <div class="faq-item reveal"><div class="faq-q"><span>Сервер не запускается, что делать?</span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Проверь три вещи: 1) имя файла запуска введено правильно и файл существует; 2) у тебя установлен <strong>Java</strong>, и команда <code>java -version</code> работает в терминале; 3) путь к папке сервера не содержит пробелов и кириллицы в названиях.</div></div>
-      <div class="faq-item reveal"><div class="faq-q"><span>Работает ли на Linux и macOS?</span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Да. На Linux и macOS используй <code>.jar</code> (запуск через <code>java -jar</code>) или <code>.sh</code> скрипт. Файлы <code>.bat</code> на Linux работают через <code>wine</code>, если он установлен, — но лучше сделать <code>.sh</code>.</div></div>
-      <div class="faq-item reveal"><div class="faq-q"><span>Где хранятся бэкапы?</span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">В папке Документы: <code>~/Documents/McPilotBackups/</code> на английской системе, <code>~/Документы/McPilotBackups/</code> на русской. На macOS — <code>~/Documents/McPilotBackups/</code>. На Linux McPilot сам найдёт правильную папку.</div></div>
-      <div class="faq-item reveal"><div class="faq-q"><span>Как поменять файл запуска после первого раза?</span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Открой настройки (шестерёнка в шапке) → раздел <strong>«Файл запуска»</strong> → кнопка <strong>«Выбрать»</strong>. Но менять можно только при остановленном сервере.</div></div>
-      <div class="faq-item reveal"><div class="faq-q"><span>Это точно бесплатно?</span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Да, полностью. Лицензия MIT — делай что хочешь, форкай, меняй, раздавай. Никаких встроенных платежей и рекламы.</div></div>
+    <h2 class="section-title">установка</h2>
+    <p class="section-sub">нужен только python 3.9 или новее</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-title">1, скачай архив</div>
+        <div class="step-desc">нажми «скачать» в разделе <a href="#releases" style="color:var(--accent-2);font-weight:600">версии</a> выше</div>
+      </div>
+      <div class="step">
+        <div class="step-title">2, установи python</div>
+        <div class="step-desc">с python.org, при установке на windows поставь галочку <code>add python to path</code></div>
+      </div>
+      <div class="step">
+        <div class="step-title">3, установи зависимости</div>
+        <div class="step-code">pip install pywebview psutil</div>
+      </div>
+      <div class="step">
+        <div class="step-title">4, распакуй в папку сервера</div>
+        <div class="step-desc">рядом с <code>start.bat</code>, <code>server.jar</code> или <code>start.sh</code></div>
+      </div>
+      <div class="step">
+        <div class="step-title">5, запусти</div>
+        <div class="step-code">python app.py</div>
+        <div class="step-desc" style="margin-top:8px">первый раз спросит папку и файл запуска, запомнит</div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ============ SOCIAL ============ -->
-<section class="section" id="social">
+<section id="faq">
   <div class="container">
-    <div class="section-head reveal">
-      <div class="section-eyebrow">Связь</div>
-      <h2 class="section-title">Нашёл баг или есть идея?</h2>
-      <p class="section-sub">Пиши — отвечу.</p>
+    <h2 class="section-title">частые вопросы</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q"><span>это безопасно</span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="faq-a">да, исходники открыты, лицензия mit, никаких сетевых запросов, платежей и телеметрии, можно открыть app.py и проверить каждую строчку</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>сервер не запускается, что делать</span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="faq-a">проверь три вещи, правильное имя файла запуска, установлена java и работает <code>java -version</code>, путь к папке без пробелов и кириллицы</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>работает на linux и macos</span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="faq-a">да, на linux и macos используй .jar или .sh, .bat работает через wine, если он установлен</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>где хранятся бэкапы</span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="faq-a">в папке документы, на русской винде это Документы, на linux и macos mcpilot сам находит правильную папку</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>это бесплатно</span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="faq-a">да, полностью, лицензия mit, делай что хочешь, форкай, меняй, раздавай</div>
+      </div>
     </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="container">
+    <h2 class="section-title">связь</h2>
+    <p class="section-sub">пиши если нашёл баг или есть идея</p>
     <div class="social-grid">
-      <a href="https://t.me/voighais" target="_blank" rel="noopener" class="social-card reveal">
+      <a href="https://t.me/voighais" target="_blank" rel="noopener" class="social-card">
         <div class="social-icon tg"><svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></div>
-        <div class="social-body"><div class="social-name">Telegram</div><div class="social-handle">@voighais</div></div>
+        <div class="social-body">
+          <div class="social-name">telegram</div>
+          <div class="social-handle">@voighais</div>
+        </div>
         <div class="social-arrow"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
       </a>
-      <a href="https://youtube.com/@voijamoija" target="_blank" rel="noopener" class="social-card reveal">
+      <a href="https://youtube.com/@voijamoija" target="_blank" rel="noopener" class="social-card">
         <div class="social-icon yt"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></div>
-        <div class="social-body"><div class="social-name">YouTube</div><div class="social-handle">@voijamoija</div></div>
+        <div class="social-body">
+          <div class="social-name">youtube</div>
+          <div class="social-handle">@voijamoija</div>
+        </div>
         <div class="social-arrow"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
       </a>
     </div>
   </div>
 </section>
 
-<!-- ============ FOOTER ============ -->
 <footer>
   <div class="container">
-    <div class="footer-text">
-      McPilot · Open Source под лицензией MIT · Сделано с ⚡ для тех, кто держит свой Minecraft-сервер<br>
-      <a href="https://t.me/voighais" target="_blank">Telegram</a> ·
-      <a href="https://youtube.com/@voijamoija" target="_blank">YouTube</a> ·
-      <a href="https://github.com/voighais/mcpilot/releases/latest/download/McPilot.zip">Скачать</a>
-    </div>
+    <p>mcpilot, опенсорс под лицензией mit<br>
+    <a href="https://t.me/voighais">telegram</a> · <a href="https://youtube.com/@voijamoija">youtube</a> · <a href="https://github.com/voighais/mcpilot">github</a></p>
   </div>
 </footer>
 
-<!-- ============ EASTER EGG ============ -->
-<div class="creeper-walk" id="creeperWalk">
-  <svg viewBox="0 0 16 16" shape-rendering="crispEdges"><use href="#creeper"/></svg>
-</div>
-<div class="easter-toast" id="easterToast">
-  <svg viewBox="0 0 16 16"><use href="#creeper"/></svg>
-  <span id="easterText">Сзади!</span>
-</div>
-
 <script>
-const STORAGE_KEY = 'mcpilot-settings-v1';
+(function(){
+  const REPO = 'voighais/mcpilot';
+  const API = 'https://api.github.com/repos/' + REPO + '/releases?per_page=20';
+  const CACHE_KEY = 'mcpilot_releases_v1';
+  const CACHE_TTL = 1000 * 60 * 30;
 
-// --- ИЗМЕНЕНО: Тёмная тема теперь по умолчанию ---
-const DEFAULT_SETTINGS = { theme:'light', accent:'emerald', font:'grotesk', glow:true, glass:true, animations:true };
-let SETTINGS = { ...DEFAULT_SETTINGS };
-try { const saved = localStorage.getItem(STORAGE_KEY); if (saved) SETTINGS = { ...DEFAULT_SETTINGS, ...JSON.parse(saved) }; } catch(e){}
-function saveSettings(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(SETTINGS)); } catch(e){} }
+  const list = document.getElementById('releaseList');
 
-const ACCENTS = {
-  emerald: { accent:'#10b981', accent2:'#059669', rgb:'16,185,129', soft:'#ecfdf5', line:'#a7f3d0' },
-  ocean:   { accent:'#3b82f6', accent2:'#2563eb', rgb:'59,130,246', soft:'#eff6ff', line:'#bfdbfe' },
-  purple:  { accent:'#8b5cf6', accent2:'#7c3aed', rgb:'139,92,246', soft:'#f5f3ff', line:'#ddd6fe' },
-  sunset:  { accent:'#f59e0b', accent2:'#d97706', rgb:'245,158,11', soft:'#fffbeb', line:'#fde68a' },
-};
-const ACCENTS_DARK = {
-  emerald: { accent:'#5ee89a', accent2:'#3fd27f', rgb:'94,232,154', soft:'rgba(94,232,154,.1)', line:'rgba(94,232,154,.25)' },
-  ocean:   { accent:'#79a9ff', accent2:'#4a8aff', rgb:'121,169,255', soft:'rgba(121,169,255,.1)', line:'rgba(121,169,255,.25)' },
-  purple:  { accent:'#b46cff', accent2:'#9a4dff', rgb:'180,108,255', soft:'rgba(180,108,255,.1)', line:'rgba(180,108,255,.25)' },
-  sunset:  { accent:'#ffd166', accent2:'#ffb800', rgb:'255,209,102', soft:'rgba(255,209,102,.1)', line:'rgba(255,209,102,.25)' },
-};
-function applyTheme(){
-  document.documentElement.setAttribute('data-theme', SETTINGS.theme);
-  const p = SETTINGS.theme === 'dark'
-    ? (ACCENTS_DARK[SETTINGS.accent] || ACCENTS_DARK.emerald)
-    : (ACCENTS[SETTINGS.accent] || ACCENTS.emerald);
-  const r = document.documentElement.style;
-  r.setProperty('--accent', p.accent);
-  r.setProperty('--accent-2', p.accent2);
-  r.setProperty('--accent-rgb', p.rgb);
-  r.setProperty('--accent-soft', p.soft);
-  r.setProperty('--accent-line', p.line);
-}
-const FONTS = {
-  grotesk: { ui:"'Space Grotesk','Manrope',ui-sans-serif,system-ui,sans-serif", body:"'Manrope',ui-sans-serif,system-ui,sans-serif" },
-  manrope: { ui:"'Manrope',ui-sans-serif,system-ui,sans-serif", body:"'Manrope',ui-sans-serif,system-ui,sans-serif" },
-  mono:    { ui:"'JetBrains Mono',ui-monospace,monospace", body:"'JetBrains Mono',ui-monospace,monospace" },
-  system:  { ui:"system-ui,-apple-system,'Segoe UI',sans-serif", body:"system-ui,-apple-system,'Segoe UI',sans-serif" },
-};
-function applyFont(){
-  const f = FONTS[SETTINGS.font] || FONTS.grotesk;
-  document.documentElement.style.setProperty('--font-ui', f.ui);
-  document.documentElement.style.setProperty('--font-body', f.body);
-}
-function applyToggles(){
-  document.body.classList.toggle('no-glow', !SETTINGS.glow);
-  document.body.classList.toggle('no-glass', !SETTINGS.glass);
-  document.body.classList.toggle('no-anim', !SETTINGS.animations);
-  if (!document.getElementById('toggleStyles')){
-    const s = document.createElement('style');
-    s.id = 'toggleStyles';
-    s.textContent = `
-      body.no-glow .bg-decor{display:none}
-      body.no-glass .feature,body.no-glass .social-card,body.no-glass .tut-step,body.no-glass .stats,body.no-glass .settings-panel{backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
-      body.no-anim *,body.no-anim *:before,body.no-anim *:after{animation:none !important;transition:none !important}
-      body.no-anim .reveal{opacity:1 !important;transform:none !important}
-    `;
-    document.head.appendChild(s);
-  }
-}
-applyTheme(); applyFont(); applyToggles();
-
-const nav = document.getElementById('nav');
-window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 20));
-
-const io = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
-}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
-document.querySelectorAll('.reveal').forEach((el, i) => {
-  el.style.transitionDelay = (i % 5) * 0.06 + 's';
-  io.observe(el);
-});
-
-document.querySelectorAll('.faq-item').forEach(item => {
-  item.querySelector('.faq-q').addEventListener('click', () => {
-    const wasOpen = item.classList.contains('open');
-    document.querySelectorAll('.faq-item').forEach(x => x.classList.remove('open'));
-    if (!wasOpen) item.classList.add('open');
-  });
-});
-
-const settingsPanel = document.getElementById('settingsPanel');
-const settingsOverlay = document.getElementById('settingsOverlay');
-function openSettings(){ settingsPanel.classList.add('open'); settingsOverlay.classList.add('open'); }
-function closeSettings(){ settingsPanel.classList.remove('open'); settingsOverlay.classList.remove('open'); }
-document.getElementById('settingsBtn').addEventListener('click', openSettings);
-document.getElementById('settingsClose').addEventListener('click', closeSettings);
-settingsOverlay.addEventListener('click', closeSettings);
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSettings(); });
-
-document.querySelectorAll('.theme-btn[data-theme]').forEach(btn => {
-  btn.classList.toggle('active', btn.dataset.theme === SETTINGS.theme);
-  btn.addEventListener('click', () => {
-    SETTINGS.theme = btn.dataset.theme;
-    document.querySelectorAll('.theme-btn[data-theme]').forEach(x => x.classList.toggle('active', x === btn));
-    applyTheme(); saveSettings();
-  });
-});
-document.querySelectorAll('.theme-btn[data-accent]').forEach(btn => {
-  btn.classList.toggle('active', btn.dataset.accent === SETTINGS.accent);
-  btn.addEventListener('click', () => {
-    SETTINGS.accent = btn.dataset.accent;
-    document.querySelectorAll('.theme-btn[data-accent]').forEach(x => x.classList.toggle('active', x === btn));
-    applyTheme(); saveSettings();
-  });
-});
-document.querySelectorAll('.font-btn').forEach(btn => {
-  btn.classList.toggle('active', btn.dataset.font === SETTINGS.font);
-  btn.addEventListener('click', () => {
-    SETTINGS.font = btn.dataset.font;
-    document.querySelectorAll('.font-btn').forEach(x => x.classList.toggle('active', x === btn));
-    applyFont(); saveSettings();
-  });
-});
-function bindToggle(id, key){
-  const el = document.getElementById(id);
-  el.classList.toggle('on', !!SETTINGS[key]);
-  el.addEventListener('click', () => {
-    SETTINGS[key] = !SETTINGS[key];
-    el.classList.toggle('on', SETTINGS[key]);
-    applyToggles(); saveSettings();
-  });
-}
-bindToggle('toggleGlow', 'glow');
-bindToggle('toggleGlass', 'glass');
-bindToggle('toggleAnim', 'animations');
-
-document.getElementById('resetSettings').addEventListener('click', () => {
-  SETTINGS = { ...DEFAULT_SETTINGS };
-  applyTheme(); applyFont(); applyToggles(); saveSettings();
-  document.querySelectorAll('.theme-btn[data-theme]').forEach(x => x.classList.toggle('active', x.dataset.theme === SETTINGS.theme));
-  document.querySelectorAll('.theme-btn[data-accent]').forEach(x => x.classList.toggle('active', x.dataset.accent === SETTINGS.accent));
-  document.querySelectorAll('.font-btn').forEach(x => x.classList.toggle('active', x.dataset.font === SETTINGS.font));
-  document.getElementById('toggleGlow').classList.toggle('on', SETTINGS.glow);
-  document.getElementById('toggleGlass').classList.toggle('on', SETTINGS.glass);
-  document.getElementById('toggleAnim').classList.toggle('on', SETTINGS.animations);
-});
-
-/* ============== EASTER EGG 1: KONAMI CODE ============== */
-const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
-let konamiProgress = 0;
-document.addEventListener('keydown', e => {
-  const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-  if (key === KONAMI[konamiProgress]){
-    konamiProgress++;
-    if (konamiProgress === KONAMI.length){ konamiProgress = 0; triggerCreeper(); }
-  } else {
-    konamiProgress = (key === KONAMI[0]) ? 1 : 0;
-  }
-});
-
-/* ============== EASTER EGG 2: CLICK LOGO 5 TIMES ============== */
-let logoClickCount = 0;
-let logoClickTimer = null;
-document.getElementById('logoCreeper').addEventListener('click', () => {
-  logoClickCount++;
-  clearTimeout(logoClickTimer);
-  logoClickTimer = setTimeout(() => { logoClickCount = 0; }, 1500);
-  if (logoClickCount >= 5){
-    logoClickCount = 0;
-    const toast = document.getElementById('easterToast');
-    const text = document.getElementById('easterText');
-    text.textContent = '🎉 Ты нашёл секрет! McPilot ❤️ тебя';
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3000);
-  } else {
-    triggerCreeper();
-  }
-});
-
-function triggerCreeper(){
-  const walk = document.getElementById('creeperWalk');
-  const toast = document.getElementById('easterToast');
-  const text = document.getElementById('easterText');
-  walk.classList.remove('active');
-  void walk.offsetWidth;
-  walk.classList.add('active');
-  const messages = ['Сзади!', 'Бум!', 'Сссссс...', 'Ты умер.', 'Creeper? Aw man!', 'SSSSSSSsssss'];
-  text.textContent = messages[Math.floor(Math.random() * messages.length)];
-  toast.classList.add('show');
-  playMinecraftExplosion();
-  setTimeout(() => toast.classList.remove('show'), 2500);
-  setTimeout(() => walk.classList.remove('active'), 8000);
-}
-
-/* ============== MINECRAFT EXPLOSION SOUND ============== */
-function playMinecraftExplosion(){
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const now = ctx.currentTime;
-
-    const boom = ctx.createOscillator();
-    boom.type = 'sine';
-    boom.frequency.setValueAtTime(140, now);
-    boom.frequency.exponentialRampToValueAtTime(28, now + 0.75);
-    const boomGain = ctx.createGain();
-    boomGain.gain.setValueAtTime(0.001, now);
-    boomGain.gain.linearRampToValueAtTime(0.7, now + 0.01);
-    boomGain.gain.exponentialRampToValueAtTime(0.001, now + 1.1);
-    boom.connect(boomGain).connect(ctx.destination);
-    boom.start(now);
-    boom.stop(now + 1.2);
-
-    const punch = ctx.createOscillator();
-    punch.type = 'triangle';
-    punch.frequency.setValueAtTime(220, now);
-    punch.frequency.exponentialRampToValueAtTime(60, now + 0.25);
-    const punchGain = ctx.createGain();
-    punchGain.gain.setValueAtTime(0.5, now);
-    punchGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-    punch.connect(punchGain).connect(ctx.destination);
-    punch.start(now);
-    punch.stop(now + 0.5);
-
-    const bufferSize = ctx.sampleRate * 1.2;
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++){
-      const t = i / bufferSize;
-      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 2.2);
+  function showSkeleton(){
+    list.innerHTML = '';
+    for (let i = 0; i < 3; i++){
+      const sk = document.createElement('div');
+      sk.className = 'skel';
+      sk.innerHTML = `
+        <div class="skel-line w25"></div>
+        <div class="skel-line w70"></div>
+        <div class="skel-line w90"></div>
+      `;
+      list.appendChild(sk);
     }
-    const noise = ctx.createBufferSource();
-    noise.buffer = buffer;
-    const noiseFilter = ctx.createBiquadFilter();
-    noiseFilter.type = 'lowpass';
-    noiseFilter.frequency.setValueAtTime(1800, now);
-    noiseFilter.frequency.exponentialRampToValueAtTime(150, now + 0.9);
-    noiseFilter.Q.value = 0.8;
-    const noiseGain = ctx.createGain();
-    noiseGain.gain.setValueAtTime(0.001, now);
-    noiseGain.gain.linearRampToValueAtTime(0.45, now + 0.02);
-    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
-    noise.connect(noiseFilter).connect(noiseGain).connect(ctx.destination);
-    noise.start(now);
+  }
 
-    const sub = ctx.createOscillator();
-    sub.type = 'sine';
-    sub.frequency.setValueAtTime(55, now);
-    sub.frequency.exponentialRampToValueAtTime(25, now + 0.9);
-    const subGain = ctx.createGain();
-    subGain.gain.setValueAtTime(0.001, now);
-    subGain.gain.linearRampToValueAtTime(0.55, now + 0.03);
-    subGain.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
-    sub.connect(subGain).connect(ctx.destination);
-    sub.start(now);
-    sub.stop(now + 1.1);
+  function formatDate(iso){
+    try {
+      const d = new Date(iso);
+      const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+      return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+    } catch(e){ return ''; }
+  }
 
-    const shaper = ctx.createWaveShaper();
-    const curve = new Float32Array(256);
-    for (let i = 0; i < 256; i++){
-      const x = (i / 128) - 1;
-      curve[i] = Math.tanh(x * 1.6);
+  function cleanChangelog(body){
+    if (!body) return 'без описания';
+    return body
+      .split('\n')
+      .map(l => l.trim())
+      .filter(l => l.length > 0)
+      .map(l => l.replace(/^[-*+]\s+/, '').replace(/^#+\s+/, '').replace(/[*_`>]/g, ''))
+      .filter(l => l.length > 0)
+      .slice(0, 4)
+      .join(', ')
+      .slice(0, 240);
+  }
+
+  function pickZip(release){
+    if (!release.assets || !release.assets.length) return null;
+    const zip = release.assets.find(a => a.name.toLowerCase().endsWith('.zip'));
+    return zip ? zip.browser_download_url : null;
+  }
+
+  function renderReleases(releases){
+    list.innerHTML = '';
+    if (!releases.length){
+      const el = document.createElement('div');
+      el.className = 'release-empty';
+      el.innerHTML = 'релизов пока нет, следи за обновлениями на <a href="https://github.com/' + REPO + '/releases" target="_blank">github</a>';
+      list.appendChild(el);
+      return;
     }
-    shaper.curve = curve;
-    const distNoise = ctx.createBufferSource();
-    distNoise.buffer = buffer;
-    const distGain = ctx.createGain();
-    distGain.gain.setValueAtTime(0.15, now);
-    distGain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
-    const distFilter = ctx.createBiquadFilter();
-    distFilter.type = 'lowpass';
-    distFilter.frequency.value = 400;
-    distNoise.connect(distFilter).connect(shaper).connect(distGain).connect(ctx.destination);
-    distNoise.start(now);
+    releases.forEach((rel, i) => {
+      const isLatest = i === 0;
+      const zipUrl = pickZip(rel);
+      const el = document.createElement('div');
+      el.className = 'release' + (isLatest ? ' latest' : '');
+      const changelog = cleanChangelog(rel.body);
+      const versionLabel = rel.tag_name || rel.name || 'v?';
+      const dateLabel = rel.published_at ? formatDate(rel.published_at) : '';
+      el.innerHTML = `
+        <div class="release-info">
+          <div class="release-head">
+            <span class="release-version">${escapeHtml(versionLabel)}</span>
+            <span class="release-badge ${isLatest ? '' : 'old'}">${isLatest ? 'latest' : 'старая'}</span>
+            ${dateLabel ? `<span class="release-date">${dateLabel}</span>` : ''}
+          </div>
+          <div class="release-changelog">${escapeHtml(changelog)}</div>
+        </div>
+        <div class="release-actions">
+          ${zipUrl
+            ? `<a href="${zipUrl}" class="btn ${isLatest ? 'primary' : ''} sm"><svg viewBox="0 0 24 24"><path d="M12 3v14M6 11l6 6 6-6M5 21h14"/></svg>скачать</a>`
+            : `<a href="${rel.html_url}" target="_blank" rel="noopener" class="btn sm">посмотреть</a>`
+          }
+          <a href="${rel.html_url}" target="_blank" rel="noopener" class="release-link">что нового</a>
+        </div>
+      `;
+      list.appendChild(el);
+    });
+  }
 
-  } catch(e){}
-}
+  function escapeHtml(s){
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function loadCache(){
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || !parsed.data || !parsed.time) return null;
+      return parsed;
+    } catch(e){ return null; }
+  }
+
+  function saveCache(data){
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ data: data, time: Date.now() }));
+    } catch(e){}
+  }
+
+  function renderError(){
+    const cached = loadCache();
+    if (cached && cached.data && cached.data.length){
+      renderReleases(cached.data);
+      return;
+    }
+    list.innerHTML = '';
+    const el = document.createElement('div');
+    el.className = 'release-empty';
+    el.innerHTML = 'не удалось загрузить релизы, открой <a href="https://github.com/' + REPO + '/releases" target="_blank">github releases</a>';
+    list.appendChild(el);
+  }
+
+  async function loadReleases(){
+    showSkeleton();
+    const cached = loadCache();
+    const isFresh = cached && (Date.now() - cached.time < CACHE_TTL);
+
+    if (isFresh){
+      renderReleases(cached.data);
+    }
+
+    try {
+      const res = await fetch(API, {
+        headers: { 'Accept': 'application/vnd.github+json' }
+      });
+      if (!res.ok) throw new Error('http ' + res.status);
+      const data = await res.json();
+      const releases = (data || [])
+        .filter(r => !r.draft)
+        .map(r => ({
+          tag_name: r.tag_name,
+          name: r.name,
+          body: r.body,
+          html_url: r.html_url,
+          published_at: r.published_at,
+          assets: r.assets || []
+        }));
+      saveCache(releases);
+      renderReleases(releases);
+    } catch(e){
+      if (!isFresh) renderError();
+    }
+  }
+
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.parentElement;
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(x => x.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+
+  const nav = document.getElementById('nav');
+  let navTicking = false;
+  window.addEventListener('scroll', () => {
+    if (navTicking) return;
+    navTicking = true;
+    requestAnimationFrame(() => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+      navTicking = false;
+    });
+  }, { passive: true });
+
+  loadReleases();
+})();
 </script>
 
 </body>
