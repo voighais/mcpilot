@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://github.com/voighais/mcpilot/releases/latest">
-    <img src="https://img.shields.io/badge/📥_СКАЧАТЬ_РЕЛИЗ-000?style=for-the-badge&color=238636&logoColor=white" alt="Download">
+    <img src="https://img.shields.io/badge/_СКАЧАТЬ_РЕЛИЗ-000?style=for-the-badge&color=238636&logoColor=white" alt="Download">
   </a>
 </p>
 
