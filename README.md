@@ -10,5 +10,4 @@
 2. распаковать в нужную папку
 3. запустить
 
----
-telegram: [@voighais](https://t.me/voighais)
+
